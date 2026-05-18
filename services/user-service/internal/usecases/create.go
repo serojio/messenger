@@ -2,17 +2,17 @@ package usecases
 
 import "users/internal/domain"
 
-type UserService struct {
+type CreateUserService struct {
 	UserRepository UserRepository
 }
 
-func NewUserService(repo UserRepository) *UserService {
-	return &UserService{
+func NewCreateUserService(repo UserRepository) *CreateUserService {
+	return &CreateUserService{
 		UserRepository: repo,
 	}
 }
 
-func (s *UserService) CreateUser(username, email string) (*domain.User, error) {
+func (s *CreateUserService) CreateUser(username, email string) (*domain.User, error) {
 	user := &domain.User{
 		Username: username,
 		Email:    email,
