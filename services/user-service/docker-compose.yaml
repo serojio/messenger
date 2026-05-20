@@ -1,17 +1,36 @@
 services:
+
   postgres:
     image: postgres:16
 
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: msgr_users
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
 
     ports:
       - "5433:5432"
 
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d msgr_users"]
+      timeout: 5s
+      retries: 5
 
-volumes:
-  postgres_data:
+  migrate:
+    image: migrate/migrate:latest
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    volumes:
+      - ./migrations:/migrations
+
+    entrypoint: ["migrate"]
+
+    command:
+      [
+        "-path", "/migrations",
+        "-database", "postgres://postgres:postgres@postgres:5432/msgr_users?sslmode=disable",
+        "up"
+      ]

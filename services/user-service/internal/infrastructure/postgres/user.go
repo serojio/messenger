@@ -16,10 +16,9 @@ type userModel struct {
 	Username string
 	Email    string
 
-	PasswordHash string
+	Password string
 
 	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 type UserRepository struct {
@@ -36,7 +35,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	model := userEntityToModel(user)
 
 	query := `
-		INSERT INTO users (
+		INSERT INTO public.users (
 			id,
 			username,
 			email,
