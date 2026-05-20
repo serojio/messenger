@@ -32,6 +32,6 @@ func MustLoadConfig() *Config {
 		DBUser:     os.Getenv("DB_USER"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
-		DBSSLMode:  os.Getenv("DB_SSL_MODE"),
+		DBSSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 }

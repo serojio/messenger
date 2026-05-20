@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 	"users/internal/config"
 
@@ -31,6 +32,14 @@ func NewConnection(cfg *config.Config) (*pgxpool.Pool, error) {
 	if err := pool.Ping(ctx); err != nil {
 		return nil, err
 	}
+
+	var dbName string
+	err = pool.QueryRow(ctx, `select current_database()`).Scan(&dbName)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("CONNECTED DB:", dbName)
 
 	return pool, nil
 }

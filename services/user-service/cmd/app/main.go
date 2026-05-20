@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect postgres: %v", err)
 	}
-	log.Printf("connected to postgres")
+	log.Printf("connected to database")
 
 	userRepo := postgres.NewUserRepository(dbPool)
 
