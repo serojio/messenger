@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"users/internal/transport/http/handler"
+
 	"github.com/go-chi/chi"
 )
 
-func NewRouter() http.Handler {
+func NewRouter(userHandler *handler.UserHandler) http.Handler {
 	r := chi.NewRouter()
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		resp := map[string]string{
@@ -16,6 +18,10 @@ func NewRouter() http.Handler {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
+	})
+
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/", userHandler.Create)
 	})
 
 	return r

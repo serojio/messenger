@@ -10,6 +10,8 @@ import (
 	"users/internal/config"
 	"users/internal/infrastructure/postgres"
 	httpTransport "users/internal/transport/http"
+	"users/internal/transport/http/handler"
+	userusecase "users/internal/usecases/user"
 )
 
 func main() {
@@ -21,7 +23,18 @@ func main() {
 	}
 	log.Printf("connected to postgres")
 
-	router := httpTransport.NewRouter()
+	userRepo := postgres.NewUserRepository(dbPool)
+
+	createUC := userusecase.NewCreateUseCase(userRepo)
+
+	userHandler := handler.NewUserHandler(
+		createUC,
+		nil, // getUC
+		nil, // updateUC
+		nil, // deleteUC
+	)
+
+	router := httpTransport.NewRouter(userHandler)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,
