@@ -60,6 +60,100 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
+func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	var model userModel
+
+	query := `
+		SELECT id, username, email, created_at
+		FROM public.users
+		WHERE id = $1
+	`
+
+	err := r.db.QueryRow(ctx, query, id).Scan(
+		&model.ID,
+		&model.Username,
+		&model.Email,
+		&model.CreatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userModelToEntity(&model), nil
+}
+
+func (r *UserRepository) UpdateByID(ctx context.Context, user *domain.User) error {
+	model := userEntityToModel(user)
+
+	query := `
+		UPDATE public.users
+		SET username = $1, email = $2
+		WHERE id = $3
+	`
+
+	_, err := r.db.Exec(
+		ctx,
+		query,
+		model.Username,
+		model.Email,
+		model.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) DeleteByID(ctx context.Context, id uuid.UUID) error {
+	query := `
+		DELETE FROM public.users
+		WHERE id = $1
+	`
+
+	_, err := r.db.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) List(ctx context.Context) ([]*domain.User, error) {
+	query := `
+		SELECT id, username, email, created_at
+		FROM public.users
+	`
+
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*domain.User
+	for rows.Next() {
+		var model userModel
+		err := rows.Scan(
+			&model.ID,
+			&model.Username,
+			&model.Email,
+			&model.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, userModelToEntity(&model))
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func userEntityToModel(entity *domain.User) *userModel {
 	model := userModel{
 		ID: entity.ID,

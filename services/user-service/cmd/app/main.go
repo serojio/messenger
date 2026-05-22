@@ -26,12 +26,17 @@ func main() {
 	userRepo := postgres.NewUserRepository(dbPool)
 
 	createUC := userusecase.NewCreateUseCase(userRepo)
+	getUC := userusecase.NewGetUseCase(userRepo)
+	updateUC := userusecase.NewUpdateUseCase(userRepo)
+	deleteUC := userusecase.NewDeleteUseCase(userRepo)
+	listUC := userusecase.NewListUseCase(userRepo)
 
 	userHandler := handler.NewUserHandler(
 		createUC,
-		nil, // getUC
-		nil, // updateUC
-		nil, // deleteUC
+		getUC,
+		updateUC,
+		deleteUC,
+		listUC,
 	)
 
 	router := httpTransport.NewRouter(userHandler)
